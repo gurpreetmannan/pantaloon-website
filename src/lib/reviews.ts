@@ -133,6 +133,21 @@ export function saveNewReview(
     }
   }
 
+  // Cloud sync to Supabase if configured
+  import("./supabase").then(({ insertSupabaseReview }) => {
+    insertSupabaseReview({
+      id: newReview.id,
+      author: newReview.author,
+      rating: newReview.rating,
+      date: newReview.date,
+      location: newReview.location,
+      content: newReview.content,
+      verified: newReview.verified,
+      badge: newReview.verifiedPurchase ? "Verified Buyer" : undefined,
+      status: "approved",
+    }).catch((err) => console.warn("Supabase review sync:", err));
+  });
+
   return newReview;
 }
 

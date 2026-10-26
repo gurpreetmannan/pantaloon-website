@@ -216,6 +216,14 @@ export function placeNewOrder(
       new CustomEvent("order-placed", { detail: { order: newOrder } })
     );
   }
+
+  // Cloud sync to Supabase if configured
+  import("./supabase").then(({ insertSupabaseOrder }) => {
+    insertSupabaseOrder(newOrder).catch((err) =>
+      console.warn("Supabase background sync:", err)
+    );
+  });
+
   clearCart();
   return newOrder;
 }
@@ -229,6 +237,14 @@ export function updateOrderStatus(
   if (typeof window !== "undefined") {
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(updated));
   }
+
+  // Cloud sync to Supabase if configured
+  import("./supabase").then(({ updateSupabaseOrderStatus }) => {
+    updateSupabaseOrderStatus(orderId, status).catch((err) =>
+      console.warn("Supabase background status sync:", err)
+    );
+  });
+
   return updated;
 }
 

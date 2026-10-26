@@ -259,6 +259,14 @@ export function updateSiteSettings(partial: Partial<SiteSettings>): SiteSettings
   if (isClient()) {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
     window.dispatchEvent(new Event("pantaloons_site_settings_updated"));
+
+    // Cloud sync to Supabase if configured
+    import("./supabase").then(({ updateSupabaseSiteSettings }) => {
+      updateSupabaseSiteSettings(
+        updated.isSiteOnline,
+        updated.maintenanceMessage
+      ).catch((err) => console.warn("Supabase settings sync:", err));
+    });
   }
   return updated;
 }
